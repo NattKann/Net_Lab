@@ -224,31 +224,23 @@
     }
 
     // Load PKT files dynamically
-    fetch('files/')
-      .then(response => response.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const links = Array.from(doc.querySelectorAll('a[href$=".pkt"]'));
-        const pktFiles = links.map(link => link.getAttribute('href'));
-        
-        const pktViewer = document.getElementById('pktViewer');
-        if (pktFiles.length > 0) {
-          pktViewer.innerHTML = pktFiles.map(file => 
-            `<a class="download" href="files/${file}" download>Download ${file}</a>`
-          ).join('');
-        } else {
-          pktViewer.innerText = 'No PKT files found';
-        }
-      })
-      .catch(() => {
-        // Fallback to known files if directory listing fails
-        const pktFiles = ['Ex2.pkt', 'ex3.pkt', 'Ex4.pkt', 'exp5.pkt'];
-        const pktViewer = document.getElementById('pktViewer');
-        pktViewer.innerHTML = pktFiles.map(file => 
-          `<a class="download" href="files/${file}" download>Download ${file}</a>`
-        ).join('');
-      });
+    const pktFiles = [
+      'exp 5 final.pkt',
+      'sem lab 10a,11b.pkt', 
+      'sem lab 1b,2a,8b,10b.pkt',
+      'sem lab 3(b).pkt',
+      'sem lab 3a,4b,9a,.pkt',
+      'sem lab 4(a).pkt',
+      'sem lab 7,11.pkt'
+    ];
+    const pktViewer = document.getElementById('pktViewer');
+    
+    if (pktFiles.length > 0) {
+      pktViewer.innerHTML = '<p></p>' +
+        pktFiles.map(file => `<a class="download" href="files/${file}" download>Download ${file}</a>`).join('');
+    } else {
+      pktViewer.innerText = 'No PKT files found';
+    }
   </script>
 </body>
 </html>
