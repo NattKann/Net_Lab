@@ -1,0 +1,7 @@
+1a 2b 6b
+
+1️⃣ System Admin command
+tasklist     # Lists running processes in Windows
+2️⃣ Network Admin commands
+ping 192.168.1.1        # Tests connectivity to another device
+tcpdump -i eth0         # Captures live network packets
