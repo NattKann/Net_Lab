@@ -115,15 +115,60 @@
     document.head.appendChild(script);
     
     function parseExperiments() {
-      const sections = notesContent.split(/(?=\d+\([ab]\))/);
-      sections.forEach(section => {
-        const match = section.match(/^(\d+)\(([ab])\)/);
-        if (match) {
-          const expNum = match[1];
-          const part = match[2];
-          if (!experiments[expNum]) experiments[expNum] = {};
-          experiments[expNum][part] = section.trim();
+      // Extract each experiment manually based on the actual content structure
+      const expMap = {
+        '1': {
+          'a': notesContent.match(/1\(a\) Comparative Analysis[\s\S]*?(?=1\(b\))/)?.[0],
+          'b': notesContent.match(/1\(b\) Basic Wired LAN Simulation[\s\S]*?(?=2\(a\))/)?.[0]
+        },
+        '2': {
+          'a': notesContent.match(/2\(a\) Basic Wired LAN Setup[\s\S]*?(?=2\(b\))/)?.[0],
+          'b': notesContent.match(/2\(b\) Comparative Analysis[\s\S]*?(?=3\(a\))/)?.[0]
+        },
+        '3': {
+          'a': notesContent.match(/3\(a\) Wireless Network Setup[\s\S]*?(?=3\(b\))/)?.[0],
+          'b': notesContent.match(/3\(b\) Assign IPv4 Addresses[\s\S]*?(?=4\(a\))/)?.[0]
+        },
+        '4': {
+          'a': notesContent.match(/4\(a\) IPv6 Configuration[\s\S]*?(?=4\(b\))/)?.[0],
+          'b': notesContent.match(/4\(b\) Wireless LAN Setup[\s\S]*?(?=5\.)/)?.[0]
+        },
+        '5': {
+          'a': notesContent.match(/5\. College Network with Subnetting[\s\S]*?(?=6\(a\))/)?.[0]
+        },
+        '6': {
+          'a': notesContent.match(/6\(a\) RIP vs OSPF Routing Protocols[\s\S]*?(?=6\(b\))/)?.[0],
+          'b': notesContent.match(/6\(b\) System vs Network Admin[\s\S]*?(?=7\.)/)?.[0]
+        },
+        '7': {
+          'a': notesContent.match(/7\. TCP vs UDP Communication[\s\S]*?(?=8\(a\))/)?.[0]
+        },
+        '8': {
+          'a': notesContent.match(/8\(a\) RIP Routing Protocol Simulation[\s\S]*?(?=8\(b\))/)?.[0],
+          'b': notesContent.match(/8\(b\) Wired LAN Setup[\s\S]*?(?=9\(a\))/)?.[0]
+        },
+        '9': {
+          'a': notesContent.match(/9\(a\) Wireless Network[\s\S]*?(?=9\(b\))/)?.[0],
+          'b': notesContent.match(/9\(b\) Implement RIP Routing[\s\S]*?(?=10\(a\))/)?.[0]
+        },
+        '10': {
+          'a': notesContent.match(/10\(a\) TCP Client-Server Simulation[\s\S]*?(?=10\(b\))/)?.[0],
+          'b': notesContent.match(/10\(b\) Wired LAN \+ Documentation[\s\S]*?(?=11\(a\))/)?.[0]
+        },
+        '11': {
+          'a': notesContent.match(/11\(a\) Analyze Network Traffic[\s\S]*?(?=11\(b\))/)?.[0],
+          'b': notesContent.match(/11\(b\) TCP Client-Server[\s\S]*?(?=12\.)/)?.[0]
+        },
+        '12': {
+          'a': notesContent.match(/12\. Socket Programming[\s\S]*$/)?.[0]
         }
+      };
+      
+      // Populate experiments object
+      Object.entries(expMap).forEach(([num, parts]) => {
+        experiments[num] = {};
+        if (parts.a) experiments[num]['a'] = parts.a.trim();
+        if (parts.b) experiments[num]['b'] = parts.b.trim();
       });
     }
     
@@ -146,7 +191,7 @@
       const content = document.getElementById('expContent');
       const exp = experiments[expNum];
       
-      if (!exp) {
+      if (!exp || (!exp.a && !exp.b)) {
         content.innerHTML = `<p>Experiment ${expNum} not found</p>`;
         return;
       }
@@ -154,14 +199,15 @@
       let html = `<div style="margin-bottom: 16px;">`;
       if (exp.a) html += `<div class="part-btn" onclick="showPart('${expNum}', 'a')">Part A</div>`;
       if (exp.b) html += `<div class="part-btn" onclick="showPart('${expNum}', 'b')">Part B</div>`;
-      html += `</div><div id="partContent">Select a part to view</div>`;
+      html += `</div><div id="partContent"></div>`;
       
       content.innerHTML = html;
     }
     
     function showPart(expNum, part) {
       document.querySelectorAll('.part-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      if (event && event.target) event.target.classList.add('active');
+      else document.querySelector(`[onclick="showPart('${expNum}', '${part}')"]`).classList.add('active');
       
       const content = experiments[expNum][part];
       const formatted = content
