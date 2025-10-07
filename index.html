@@ -35,6 +35,20 @@
     word-wrap: break-word;
     color: #a5f3fc;
     font-size: 14px;
+    line-height: 1.6;
+  }
+  .content h1, .content h2, .content h3 {
+    color: #fbbf24;
+    margin: 20px 0 10px 0;
+  }
+  .content strong {
+    color: #34d399;
+  }
+  .content code {
+    background: #1f2937;
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: #f59e0b;
   }
   a.download {
     color: #93c5fd;
@@ -49,7 +63,7 @@
   <header>Net_Loot</header>
 
   <section>
-    <h3></h3>
+    <h3>Lab Notes</h3>
     <div class="viewer" id="textViewer">Loading text...</div>
 
     <h3>Packet Tracer Files</h3>
@@ -61,7 +75,16 @@
     const script = document.createElement('script');
     script.src = 'files/notes.js';
     script.onload = () => {
-      document.getElementById("textViewer").innerHTML = "<pre>" + notesContent + "</pre>";
+      const formatted = notesContent
+        .replace(/^(\d+\([ab]\)[^\n]*)/gm, '<h2>$1</h2>')
+        .replace(/^🔹 ([^\n]*)/gm, '<h3>🔹 $1</h3>')
+        .replace(/^🖥 ([^\n]*)/gm, '<strong>🖥 $1</strong>')
+        .replace(/^🐧 ([^\n]*)/gm, '<strong>🐧 $1</strong>')
+        .replace(/^🐍 ([^\n]*)/gm, '<strong>🐍 $1</strong>')
+        .replace(/^✅ ([^\n]*)/gm, '<strong style="color:#10b981">✅ $1</strong>')
+        .replace(/^([^\n]*#[^\n]*)/gm, '<code>$1</code>')
+        .replace(/\n/g, '<br>');
+      document.getElementById("textViewer").innerHTML = '<div class="content">' + formatted + '</div>';
     };
     script.onerror = () => {
       document.getElementById("textViewer").innerText = "Text file not found (add files/notes.js)";
