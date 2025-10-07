@@ -73,7 +73,7 @@
     const pktViewer = document.getElementById('pktViewer');
     
     if (pktFiles.length > 0) {
-      pktViewer.innerHTML = '<p>.pkt files can\'t be previewed in browser — download below:</p>' +
+      pktViewer.innerHTML = '<p></p>' +
         pktFiles.map(file => `<a class="download" href="files/${file}" download>Download ${file}</a>`).join('');
     } else {
       pktViewer.innerText = 'No PKT files found';
