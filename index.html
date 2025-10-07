@@ -57,25 +57,114 @@
     margin: 5px 0;
   }
   a.download:hover { text-decoration: underline; }
+  .exp-btn {
+    background: #1f2937;
+    color: #93c5fd;
+    border: 1px solid #374151;
+    padding: 8px 16px;
+    margin: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+  }
+  .exp-btn:hover { background: #374151; }
+  .exp-btn.active { background: #3b82f6; color: white; }
+  .part-btn {
+    background: #065f46;
+    color: #10b981;
+    border: 1px solid #047857;
+    padding: 4px 12px;
+    margin: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 12px;
+  }
+  .part-btn:hover { background: #047857; }
+  .part-btn.active { background: #10b981; color: white; }
 </style>
 </head>
 <body>
   <header>Net_Loot</header>
 
   <section>
-    <h3>Lab Notes</h3>
-    <div class="viewer" id="textViewer">Loading text...</div>
+    <h3>Experiments</h3>
+    <div class="viewer">
+      <div id="expButtons"></div>
+      <div id="expContent"></div>
+    </div>
 
     <h3>Packet Tracer Files</h3>
     <div class="viewer" id="pktViewer">Loading PKT files...</div>
   </section>
 
   <script>
+    let experiments = {};
+    let currentExp = null;
+    
     // Load notes from JavaScript file
     const script = document.createElement('script');
     script.src = 'files/notes.js';
     script.onload = () => {
-      const formatted = notesContent
+      parseExperiments();
+      createExpButtons();
+    };
+    script.onerror = () => {
+      document.getElementById("expContent").innerText = "Text file not found (add files/notes.js)";
+    };
+    document.head.appendChild(script);
+    
+    function parseExperiments() {
+      const sections = notesContent.split(/(?=\d+\([ab]\))/);
+      sections.forEach(section => {
+        const match = section.match(/^(\d+)\(([ab])\)/);
+        if (match) {
+          const expNum = match[1];
+          const part = match[2];
+          if (!experiments[expNum]) experiments[expNum] = {};
+          experiments[expNum][part] = section.trim();
+        }
+      });
+    }
+    
+    function createExpButtons() {
+      const container = document.getElementById('expButtons');
+      for (let i = 1; i <= 12; i++) {
+        const btn = document.createElement('div');
+        btn.className = 'exp-btn';
+        btn.textContent = i;
+        btn.onclick = () => showExp(i);
+        container.appendChild(btn);
+      }
+    }
+    
+    function showExp(expNum) {
+      currentExp = expNum;
+      document.querySelectorAll('.exp-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const content = document.getElementById('expContent');
+      const exp = experiments[expNum];
+      
+      if (!exp) {
+        content.innerHTML = `<p>Experiment ${expNum} not found</p>`;
+        return;
+      }
+      
+      let html = `<div style="margin-bottom: 16px;">`;
+      if (exp.a) html += `<div class="part-btn" onclick="showPart('${expNum}', 'a')">Part A</div>`;
+      if (exp.b) html += `<div class="part-btn" onclick="showPart('${expNum}', 'b')">Part B</div>`;
+      html += `</div><div id="partContent">Select a part to view</div>`;
+      
+      content.innerHTML = html;
+    }
+    
+    function showPart(expNum, part) {
+      document.querySelectorAll('.part-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const content = experiments[expNum][part];
+      const formatted = content
         .replace(/^(\d+\([ab]\)[^\n]*)/gm, '<h2>$1</h2>')
         .replace(/^🔹 ([^\n]*)/gm, '<h3>🔹 $1</h3>')
         .replace(/^🖥 ([^\n]*)/gm, '<strong>🖥 $1</strong>')
@@ -84,12 +173,9 @@
         .replace(/^✅ ([^\n]*)/gm, '<strong style="color:#10b981">✅ $1</strong>')
         .replace(/^([^\n]*#[^\n]*)/gm, '<code>$1</code>')
         .replace(/\n/g, '<br>');
-      document.getElementById("textViewer").innerHTML = '<div class="content">' + formatted + '</div>';
-    };
-    script.onerror = () => {
-      document.getElementById("textViewer").innerText = "Text file not found (add files/notes.js)";
-    };
-    document.head.appendChild(script);
+      
+      document.getElementById('partContent').innerHTML = '<div class="content">' + formatted + '</div>';
+    }
 
     // Load PKT files dynamically
     const pktFiles = ['Ex2.pkt', 'ex3.pkt', 'Ex4.pkt', 'exp5.pkt'];
