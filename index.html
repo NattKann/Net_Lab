@@ -57,15 +57,16 @@
   </section>
 
   <script>
-    // Load the text file dynamically from /files/notes.txt
-    fetch("files/notes.txt")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("textViewer").innerHTML = "<pre>" + data + "</pre>";
-      })
-      .catch(() => {
-        document.getElementById("textViewer").innerText = "Text file not found (add files/notes.txt)";
-      });
+    // Load notes from JavaScript file
+    const script = document.createElement('script');
+    script.src = 'files/notes.js';
+    script.onload = () => {
+      document.getElementById("textViewer").innerHTML = "<pre>" + notesContent + "</pre>";
+    };
+    script.onerror = () => {
+      document.getElementById("textViewer").innerText = "Text file not found (add files/notes.js)";
+    };
+    document.head.appendChild(script);
 
     // Load PKT files dynamically
     const pktFiles = ['Ex2.pkt', 'ex3.pkt', 'Ex4.pkt', 'exp5.pkt'];
